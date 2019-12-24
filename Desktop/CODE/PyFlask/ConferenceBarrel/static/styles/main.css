@@ -1,0 +1,9 @@
+* {
+font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+h3 {
+    text-align: center;
+    text-decoration: underline;
+    color: rgb(57, 65, 73);
+  }

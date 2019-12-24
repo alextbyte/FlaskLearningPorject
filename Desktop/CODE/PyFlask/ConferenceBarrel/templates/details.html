@@ -1,0 +1,14 @@
+<!-- Tell that 'basetemplatepage.html' is the parent of this page -->
+{% extends 'basetemplatepage.html' %}
+
+
+{% block content %}
+
+<p> Details of conference number: </p> 
+<p> Conference name: {{conference_details.title}} </p>
+<p> Conference date: {{conference_details.date.strftime('%d/%m/%Y') }} </p>
+<p> Conference price: {{conference_details.ticket_cost}} </p>
+
+{% endblock %}
+
+

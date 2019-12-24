@@ -1,0 +1,22 @@
+<!-- Tell that 'basetemplatepage.html' is the parent of this page -->
+{% extends 'basetemplatepage.html' %}
+
+
+{% block content %}
+
+    <!-- Use count filter to check if results have values -->
+    {% if results | count > 0 %}
+        <!-- Returns list of liks -->
+        <ul>
+        <!-- Loop through the conference tuple that contains fields from «conferences» table -->
+        {% for result in results %}
+            <li>
+            <a href="{{ url_for('conferences', conference_id=result.id)}}"> {{result.title}} </a></br>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <h2> No results found! </h2>
+    {% endif %}
+
+{% endblock %}

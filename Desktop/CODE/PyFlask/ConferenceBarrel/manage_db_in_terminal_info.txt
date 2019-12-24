@@ -1,0 +1,61 @@
+### In Terminal
+# To generate automaticaly data base table from the class 
+# use Python Interactive Mode -> library «ipython»
+# Import «db» object from the application «app» and run the «db.create_all()» method to generate db file
+
+'''
+    (env) PS C:/Users/Administrador/Desktop/CODE/PyFlask/ConferenceBarrel> ipython
+
+    Python 3.7.5 (tags/v3.7.5:5c02a39a0b, Oct 15 2019, 00:11:34) [MSC v.1916 64 bit (AMD64)]
+    Type 'copyright', 'credits' or 'license' for more information
+    IPython 7.10.2 -- An enhanced Interactive Python. Type '?' for help.
+
+    In [1]: from main import db
+
+    In [2]: db.create_all()
+
+'''
+
+
+
+# Than create serveral instances of «Conferences» module class
+
+'''
+## Import class «Conference» and «datetime» to create values in data base:
+
+    In [3]: from main import Conference
+
+    In [4]: from datetime import datetime
+
+## create vars hat contain info to pass into data base:
+
+    In [5]: conf1 = Conference(title='Python Conference', date=datetime(2019, 10, 10), ticket_cost=200.0)
+
+    In [6]: conf2 = Conference(title='Flask Conference', date=datetime(2019, 10, 11), ticket_cost=150.0)
+
+    In [7]: conf3 = Conference(title='Django Conference', date=datetime(2019, 10, 12), ticket_cost=300.0)
+
+## Add vars into data base session:
+    In [8]: db.session.add(conf1)
+
+    In [9]: db.session.add(conf2)
+
+    In [10]: db.session.add(conf3)
+
+## To submit the changes to data base
+    In [11]: db.session.commit() 
+
+'''
+
+
+
+# To view data base in terminal = equals to = «SELECT * FROM conference»
+
+'''
+In [12]: Conference.query.all()
+Out[12]: 
+[Conference Python Conference,
+ Conference Flask Conference,
+ Conference Django Conference]
+
+'''

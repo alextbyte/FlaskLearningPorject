@@ -1,0 +1,45 @@
+<!-- 
+                IMPORTANT
+You can create html page from the begining to the 
+But it si more obvious in FLASK to create  template page 
+and then use: 
+
+    Tell that "basetemplatepage.html" is the parent of this page
+    « extends 'basetemplatepage.html' »
+
+    « block content »
+        HTML CONTENT
+    « endblock »
+
+
+*** The template html page must have main html body 
+and than just have:
+<head>
+</head>
+<body>
+
+    « block content »
+        > where html content will be extracted from specific pages 
+        and will be passed into main html template page by «render_template» library of FLASK
+            (Don't input code into «block» container on template page)
+    « endblock »
+
+</body>
+
+-->
+
+<!-- Tell that 'basetemplatepage.html' is the parent of this page -->
+{% extends 'basetemplatepage.html' %}
+
+
+
+{% block content %}
+
+<p> Welcome </p>
+    <!-- You always can use normal link
+    <a href="/static/about.html">About Conferences</a>-->
+
+    <!-- but it better use routed url -->
+    <a href="{{ url_for('static', filename='about.html') }}">About Conferences</a>
+
+{% endblock %}
