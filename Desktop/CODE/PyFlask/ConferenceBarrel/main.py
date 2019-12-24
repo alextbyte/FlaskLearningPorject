@@ -16,7 +16,12 @@ After that all the chages will be seen after refreshing html page
 # reneder_template() -> to render html page inside the «basetemplatepage.html»
 # abrot() -> to display «404» error if page does not exists
 # reuest to 'POST' and 'GET' data from data base (used in search form)
-from flask import Flask, render_template, abort, request
+from flask import Flask, render_template, abort, request, redirect, url_for
+
+
+# Library for user login control
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+
 
 # Import SQLAlchemy to manage DB
 from flask_sqlalchemy import SQLAlchemy
@@ -46,9 +51,35 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///conferencebarrel.sqlite'
 # Dissable a Flask warning - no reason why it is appear
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 # Pass SQLAlchemy with initilizer into new variable for future use
 db = SQLAlchemy(app)
+
+
+# Storing secret key for flask seccionas in the configuration manager
+# You need a strong key, but can be used simple one for testing
+app.config['SECRET_KEY'] = 'flaskproject'
+
+# Setting up a flask login manager object which setup flask application for falsk login
+login_manager = LoginManager()
+login_manager.init_app(app)
+# To redirect page to login when user is logout
+login_manager.login_view = 'login'
+
+
+# Setting up the class for used data
+# User Class will inherit UserMixin class
+# For thsi case use defualt configurations
+class ConferenceBarrelUser(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+
+# Temporary list to store user data -> it will be passed into data base
+users = [
+    ConferenceBarrelUser(1, 'admin', 'top_secret'),
+    ConferenceBarrelUser(2, 'user', 'nong'),
+]
 
 
 # Create a class to manage Conference DB:
@@ -66,7 +97,6 @@ class Conference(db.Model):
 
 
 # After create class «Conference» -> VIEW FILE CALLED «manage_db_in_terminal_info»
-
 
 
 
@@ -124,10 +154,19 @@ def conferences(conference_id=None):
         # To view data base just use variable to pass data base values: conferences = Conference.query.all()
         return render_template('conferences.html', conferences=Conference.query.all())
 
+
+# Function for 404 error for non-existing web page
 @app.errorhandler(404)
 def handle_404(e):
     # «return» function is a tuple so you can add another argument after comma «,»
     return render_template('404.html', Conf_num=Conf_num),404
+
+
+# Function for 401 error for user login
+@app.errorhandler
+def handle_401(e):
+    return redirect(url_for('login'))
+
 
 # to search data base with «request» method from Flask
 # To use other method than 'GET' (wich is defined by default) add into «@app.route» oher methods: methods=['GET', 'POST']
@@ -136,6 +175,7 @@ def search():
     # get the form method from search form with «request» method
     if request.method == 'POST':
         # var that passes value into search query
+        # name of html form input filed 'needle'
         needle = request.form['needle']
         # Pass result into «result» 
         ### => «filter» «Conference» data base by «title» «like» in «needle» varibale + search for «all()»
@@ -147,4 +187,46 @@ def search():
         return render_template('search.html')
 
 
+
+# Routing function to login users
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Name of html form input filed 'username'
+        username = request.form['username']
+        # Name of html form input filed 'password'
+        password = request.form['password']
+        
+        #serarch for user in the list of users
+        for usr in users:
+            # If user name and pass match to input
+            if usr.username == username and usr.password == password:
+                # flask function will carry out all the authentication magic
+                login_user(usr)
+                # and user wil be redirected to a protected resource
+                return redirect(url_for('secret_data'))
+            return abort(401) # IF user & pass NOT match page will redirect to 404 error page for unauthorized access
+    else:
+        return render_template('login.html')
+
+# Creating protected resource
+@app.route('/secret_data')
+@login_required # To protect this page from unauthorized access
+def secret_data():
+    return render_template('secret_data.html')
+
+# create a logout function
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
+# Create a funtion that will take the user id and return the content with that id
+# this function is called after user is authenticated
+@login_manager.user_loader
+def load_user(id):
+    for u in users:
+        if str(u.id) == id:
+            return u
 
