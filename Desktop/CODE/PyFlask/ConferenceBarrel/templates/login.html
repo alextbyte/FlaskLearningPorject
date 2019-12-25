@@ -4,11 +4,35 @@
 
 {% block content %}
 
+
+<!-- Flash messages from flask library -->
+
+<!-- get_flashed_messages() => retrives mesage prepared for this request from function «def register()» 
+from «main.py» -->
+
+{% with messages = get_flashed_messages() %}
+  <!-- If messages exist -->
+  {%if messages %}
+    <!-- Display «message» in the list form -->
+    <ul>
+      <!-- Loop throuth the «messages» to get the right «message» -->
+      {% for message in messages %}
+        <!-- Display «message» from «messages» -->
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+
+  {% endif %}
+
+{% endwith %}
+
+
 <form action="/login" method='POST'>
   <input type="text" name="username" value="Username">
   <input type="text" name="password" value="Password">
   <input type="submit" value="Login">
 </form> 
 
+<a href="{{ url_for('register') }}">Make a Registration</a>
 
 {% endblock %}

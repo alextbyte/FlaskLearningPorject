@@ -59,3 +59,42 @@ Out[12]:
  Conference Django Conference]
 
 '''
+
+
+##########################################################################
+CREATE USER DATA BASE (with usename and password)
+--------------------------------------------------------------------------
+
+        # Import user class 
+In [1]: from main import ConferenceBarrelUser
+
+        # Import db function
+In [2]: from main import db
+
+        # Create data base with name «ConferenceBarrelUser»
+In [3]: db.create_all()
+
+        # Define var to create 'username' and 'password' from user class: ConferenceBarrelUser('username', 'password')
+In [4]: rdoe =  ConferenceBarrelUser('rdoe', 'secret_data')
+
+        # Add var into data base session 
+In [6]: db.session.add(rdoe)
+
+        # Commit data base session to write data into user data base with name «ConferenceBarrelUser»
+In [7]: db.session.commit()
+
+        # Query all data written into «ConferenceBarrelUser» data base
+In [8]: ConferenceBarrelUser.query.all()
+        # Result of querying
+Out[8]: [<ConferenceBarrelUser 1>]
+
+        # Define var to extract data written into «ConferenceBarrelUser» data base
+In [9]: user = ConferenceBarrelUser.query.get(1)
+
+        # Print «username» field of from var «user» which contains 1st filed of «ConferenceBarrelUser» data base
+In [10]: user.username
+        # Result of printing the var «user»
+Out[10]: 'rdoe'
+
+
+

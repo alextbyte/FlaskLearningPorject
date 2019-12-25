@@ -2,13 +2,15 @@
 
 -> Set the environment variable that contains the aplication
     The flask will look for this appication in the variable named «FLASK_APP»
--> use this command: $Env:FLASK_APP="main.py"
+-> use this command: 
+                    $Env:FLASK_APP="main.py"
 
 ($Env:FLASK_APP="Any_Other_Name.py")
 
 
 By default we need lways to restart server to see the changes,
-but by setting «debug» variable we can change that: $Env:FLASK_DEBUG=1
+but by setting «debug» variable we can change that: 
+                    $Env:FLASK_DEBUG=1
 After that all the chages will be seen after refreshing html page
 
 '''
@@ -16,10 +18,11 @@ After that all the chages will be seen after refreshing html page
 # reneder_template() -> to render html page inside the «basetemplatepage.html»
 # abrot() -> to display «404» error if page does not exists
 # reuest to 'POST' and 'GET' data from data base (used in search form)
-from flask import Flask, render_template, abort, request, redirect, url_for
+from flask import Flask, render_template, abort, request, redirect, url_for, flash
 
 
 # Library for user login control
+# To import it you need to install it -> pip install flask_login
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 
 
@@ -69,17 +72,22 @@ login_manager.login_view = 'login'
 # Setting up the class for used data
 # User Class will inherit UserMixin class
 # For thsi case use defualt configurations
-class ConferenceBarrelUser(UserMixin):
-    def __init__(self, id, username, password):
-        self.id = id
+class ConferenceBarrelUser(db.Model, UserMixin):
+    # add «id», «username» and «password» to a data base
+    # «id» will be automatically generated
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+
+    def __init__(self, username, password):
         self.username = username
         self.password = password
 
-# Temporary list to store user data -> it will be passed into data base
-users = [
-    ConferenceBarrelUser(1, 'admin', 'top_secret'),
-    ConferenceBarrelUser(2, 'user', 'nong'),
-]
+
+# To prepare data base to store the username and password use «ipython»
+# type «ipython» -> from main import db, ConferenceBarrelUser
+# create data base by «db.create_all()»
+
 
 
 # Create a class to manage Conference DB:
@@ -196,24 +204,25 @@ def login():
         username = request.form['username']
         # Name of html form input filed 'password'
         password = request.form['password']
-        
-        #serarch for user in the list of users
-        for usr in users:
-            # If user name and pass match to input
-            if usr.username == username and usr.password == password:
-                # flask function will carry out all the authentication magic
-                login_user(usr)
-                # and user wil be redirected to a protected resource
-                return redirect(url_for('secret_data'))
-            return abort(401) # IF user & pass NOT match page will redirect to 404 error page for unauthorized access
+        # to filter query/filter username and password in db
+        usrnm_frm_db = ConferenceBarrelUser.query.filter(ConferenceBarrelUser.username == username).filter(ConferenceBarrelUser.password == password).first()
+        # To check if there is much on username and password
+        if usrnm_frm_db is None:
+            flash('Invalid username and/or password!')
+            return redirect(url_for('login'))
+        login_user(usrnm_frm_db)
+        # «usrname» -> passes username into the «@app.route('/secret_data/<username>')» wraper  AND  «def secret_data(username)» function 
+        return redirect(url_for('secret_data', username=username))
     else:
         return render_template('login.html')
 
 # Creating protected resource
-@app.route('/secret_data')
+# Passing «<username>» variable into the wraper to pass it into the function
+@app.route('/secret_data/<username>')
 @login_required # To protect this page from unauthorized access
-def secret_data():
-    return render_template('secret_data.html')
+def secret_data(username):
+    # Formating varible appearence: username=str(username).capitalize()+' ('+username+')'
+    return render_template('secret_data.html', username=username)
 
 # create a logout function
 @app.route('/logout')
@@ -226,7 +235,47 @@ def logout():
 # this function is called after user is authenticated
 @login_manager.user_loader
 def load_user(id):
-    for u in users:
-        if str(u.id) == id:
-            return u
+    return ConferenceBarrelUser.query.get(id)
+    # If you don't put «(id)» in the end the error is: AttributeError: 'function' object has no attribute 'is_authenticated'
 
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password1 = request.form['password1']
+        password2 = request.form['password2']
+
+        # Check if username does already exist in the data base
+        usrname = ConferenceBarrelUser.query.filter(ConferenceBarrelUser.username == username).first()
+
+        # if username is NOT NONE return register page again
+        if usrname is not None:
+            # Show flash message explainig what happend
+            flash('Username already exists')
+            # return back to register page
+            return redirect(url_for('register'))
+
+
+        # Verify if passwords match
+        passwords_match = password1 == password2
+
+        # if passwords does NOT match return register page again
+        if passwords_match is False:
+            flash("Passwords doesn't match!")
+            return redirect(url_for('register'))
+        
+        # Pass user credentials into var «usr_data_nm_pss» 
+        usr_data_nm_pss = ConferenceBarrelUser(username, password1)
+
+        # Add user credentials into data base session
+        db.session.add(usr_data_nm_pss)
+
+        # Write user credentials into «ConferenceBarrelUser» data base
+        db.session.commit()
+
+        # If everythong is good redirect to login page
+        return redirect(url_for('login'))
+    else:
+        # If method used is not 'POST' redirect to «register.html»
+        return render_template('register.html')

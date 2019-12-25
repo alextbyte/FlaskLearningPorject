@@ -1,7 +1,10 @@
 * {
-font-family: Verdana, Geneva, Tahoma, sans-serif;
+font-family: Arial, Helvetica, sans-serif;
 }
-
+h2 {
+  text-decoration: none;
+  color: rgb(16, 119, 221);
+}
 h3 {
     text-align: center;
     text-decoration: underline;
