@@ -27,11 +27,22 @@ from «main.py» -->
 {% endwith %}
 
 
-<form action="/login" method='POST'>
-  <input type="text" name="username" value="Username">
-  <input type="text" name="password" value="Password">
-  <input type="submit" value="Login">
-</form> 
+<!-- To check if the user is Loged In 
+and redirect with «meta» tag to a «secrete_data» 
+
+If user not Loged In => show him the login form -->
+{% if current_user.is_authenticated %}
+  <meta http-equiv="Refresh" content="0; url={{ url_for('secret_data')}}" />
+{% else %}
+  <form action="/login" method='POST'>
+    <input type="text" name="username" value="Username">
+    <input type="text" name="password" value="Password">
+    <input type="submit" value="Login">
+ </form> 
+
+{% endif %}
+
+
 
 <a href="{{ url_for('register') }}">Make a Registration</a>
 

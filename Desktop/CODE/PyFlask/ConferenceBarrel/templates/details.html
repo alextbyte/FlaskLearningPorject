@@ -9,6 +9,23 @@
 <p> Conference date: {{conference_details.date.strftime('%d/%m/%Y') }} </p>
 <p> Conference price: {{conference_details.ticket_cost}} </p>
 
+
+
+<!-- To see the numbere of attendees for the conference -->
+<h4> Number of attendees: {{ conference_details.tickets.all() | count}} </h4>
+
+        <!-- To check if the user is Loged In 
+        and present or not links to «rofile» and «Logout» -->
+        {% if current_user.is_authenticated %}
+                <!-- To get a new ticket -->
+                <!-- the variable «conference_details» is passed into this html page by  -->
+                <a href="{{ url_for('new_ticket', conference_id=conference_details.id)}}">Get your ticket!</a></br>
+        {% else %}
+            <p> <a href="{{ url_for('login')}}">Get your ticket!</a></br>
+        {% endif %}
+
+
+
 {% endblock %}
 
 

@@ -1,9 +1,31 @@
 <html>
 <head>
+<link rel="stylesheet" type="text/css" href="styles/main.css">
 </head>
 <body>
-
+<a href="../index">Home</a>
     <h2>This is page about conference record web service!</h2>
+    <h3>For experimenting purposes thsi page returns list of conferences with Javascript from Flask API in Json format and formats it into html list. </h3>
+
+        <ul id="conferences">
+
+        </ul>
+
+<script>
+    fetch('http://127.0.0.1:5000/api/conferences')
+    .then(response => { return response.json() })
+    .then(res => {
+            res.forEach((conference, index) => {
+                var conferences = document.getElementById('conferences');
+                var li = document.createElement('li');
+                var title = document.createTextNode(conference.title);
+                li.appendChild(title)
+                conferences.appendChild(li);
+            });
+        });
+</script>
+
+
 
 </body>
 

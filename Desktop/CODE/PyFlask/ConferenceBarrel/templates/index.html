@@ -36,10 +36,6 @@ and than just have:
 {% block content %}
 
 <p> Welcome </p>
-    <!-- You always can use normal link
-    <a href="/static/about.html">About Conferences</a>-->
 
-    <!-- but it better use routed url -->
-    <a href="{{ url_for('static', filename='about.html') }}">About Conferences</a>
 
 {% endblock %}
